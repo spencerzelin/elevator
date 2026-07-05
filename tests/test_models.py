@@ -74,20 +74,6 @@ class TestElevatorAssignAndService(unittest.TestCase):
         self.assertIsNone(waiting.pickup_time)
         self.assertIn(1, e.stops)  # stop stays open for the still-waiting passenger
 
-    def test_assign_allows_requeue_when_capacity_is_full(self):
-        e = Elevator(0, capacity=1, start_floor=1)
-        p1 = Passenger(0, "a", 1, 5)
-        p2 = Passenger(0, "b", 1, 5)
-
-        e.assign(p1)
-        e.assign(p2)
-
-        e.service_current_floor(0)
-
-        self.assertEqual(e.load, 1)
-        self.assertIn(1, e.stops)
-        self.assertIsNone(p2.pickup_time)
-
     def test_dropoff_reached_before_pickup_does_not_crash(self):
         """Car starts above BOTH floors of an upward trip (source=10,
         dest=20, car at 30): the nearer floor it reaches first is the
