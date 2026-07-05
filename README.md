@@ -34,7 +34,7 @@ or specify custom options:
 
 ``` bash
 python main.py \
-    --requests data/sample_requests.csv \
+    --requests sample_requests.csv \
     --elevators 4 \
     --floors 60 \
     --capacity 8 \
@@ -59,6 +59,11 @@ python main.py \
 
   `--output`      Position log output              `output/positions.csv`
   -----------------------------------------------------------------------------
+
+Note: the default `--requests` path (`data/sample_requests.csv`) assumes a
+`data/` folder that isn't checked into this repo. Pass `--requests
+sample_requests.csv` (or `sample_requests2.csv`), both of which live at the
+repo root, or point at your own CSV.
 
 The simulation writes:
 
@@ -96,8 +101,10 @@ elevator/
 tests/
 └── Unit tests
 
-data/
-└── Sample request file
+sample_requests.csv     Small example request file (time,id,source,dest)
+sample_requests2.csv    A second, smaller example request file
+elevator.pptx           Slide deck walking through the design and results
+output/                 Position log output (created at runtime)
 ```
 
 ------------------------------------------------------------------------
@@ -194,6 +201,25 @@ The tests cover:
 -   no-look-ahead behavior
 -   invalid inputs
 -   end-to-end simulation
+
+------------------------------------------------------------------------
+
+# Presentation Materials
+
+-   `elevator.pptx` — a walkthrough deck covering the problem spec,
+    architecture, scheduling logic, and demo results.
+
+Example commands for generating comparable output when presenting:
+
+``` bash
+python main.py --requests sample_requests.csv \
+    --elevators 4 --floors 60 --capacity 8 \
+    --scheduler nearest --output output/positions_nearest.csv
+
+python main.py --requests sample_requests.csv \
+    --elevators 4 --floors 60 --capacity 8 \
+    --scheduler round_robin --output output/positions_roundrobin.csv
+```
 
 ------------------------------------------------------------------------
 

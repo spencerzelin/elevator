@@ -55,7 +55,7 @@ class Simulation:
         self.elevators = [Elevator(elevator_id=i, capacity=capacity, start_floor=start_floor) for i in range(num_elevators)]
         self.scheduler = scheduler
 
-        # Source == dest requests need no elevator; resolve them immediately.
+        # Handle source = destination where requests dont need elevator... can resolve.
         for request in self.requests:
             if request.source == request.dest:
                 request.pickup_time = request.time
@@ -63,49 +63,62 @@ class Simulation:
 
     def run(self, max_ticks: int = 1_000_000) -> SimulationResult:
         """
-        This function runs the elevator simulation until all passengers have been serviced or the maximum number of ticks is reached.
+        This function runs the simulation until all passengers have been serviced or max ticks is reached.
         It releases passengers based on their arrival time, assigns them to elevators using the scheduler, and
         moves the elevators accordingly.
         Args:
-        max_ticks (int): The maximum number of ticks to run the simulation. Default is 1,000,000.
+        max_ticks (int): The max # of ticks to run the simulation. Default is 1,000,000.
         Returns:
-        SimulationResult: The result of the simulation, including the list of passengers, position log,
-        and total ticks.
+        SimulationResult (class): result of the simulation
         """
         position_log: List[List[int]] = []
         next_request_idx = 0
         t = 0
         unassigned: List[Passenger] = []
+
         while True:
-            # Release any requests whose arrival time has come, skipping
-            # same-floor "requests" that were already resolved instantly in __init__.
+            # Get the passengers from the requests whose arrival time has come
             while next_request_idx < len(self.requests) and self.requests[next_request_idx].time == t:
                 passenger = self.requests[next_request_idx]
                 next_request_idx += 1
                 if passenger.source != passenger.dest:
                     unassigned.append(passenger)
-            # Try to hand off newly released (or previously unassignable) passengers
-            # to an elevator with committed capacity.
+            
+            # Try to assign passengers to an elevator with committed capacity.
             unassigned = self._assign_available(unassigned)
+
             # Board/alight passengers at each elevator's current floor before moving.
             for elevator in self.elevators:
                 elevator.service_current_floor(t)
+
+            # Log positions of elevators current floors
             position_log.append([t] + [e.current_floor for e in self.elevators])
+
+            # Did we release everyone? Are elevators all idle?
             all_released = next_request_idx >= len(self.requests)
             all_idle = all(e.is_idle() for e in self.elevators)
+
             if all_released and not unassigned and all_idle:
                 break
             if t >= max_ticks:
                 raise RuntimeError(f"Simulation did not terminate within {max_ticks} ticks")
+            
+            # Finally move the elevators and tick
             for elevator in self.elevators:
                 elevator.move()
             t += 1
         return SimulationResult(passengers=self.requests, position_log=position_log, ticks=t)
 
     def _assign_available(self, passengers: List[Passenger]) -> List[Passenger]:
-        """Attempt to assign each passenger to an elevator; anyone the
-        scheduler can't place yet (e.g. all elevators full) is carried over
-        to be retried next tick."""
+        """
+        This functoin attempts to assign each passenger to an elevator
+        Anyone the scheduler can't place yet (all elevators full) is carried over to next tick.
+        
+        Args:
+        passengers (List[Passenger]): list of unassigned passengers part of this tick
+        Returns:
+        still_unassigned (List[Passenger]): list of STILL unassigned passengers after this tick
+        """
         still_unassigned = []
         for passenger in passengers:
             chosen = self.scheduler.choose(passenger, self.elevators)

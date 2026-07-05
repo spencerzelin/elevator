@@ -39,10 +39,11 @@ class NearestCarScheduler(Scheduler):
         elevators (List[Elevator]): A list of available elevators to choose from.
         Returns:
         Optional[Elevator]: The chosen elevator, or None if no suitable elevator is available."""
+        # Get the avail candidate elevators
         candidates = [e for e in elevators if e.has_committed_capacity()]
         if not candidates:
             return None
-        # Return the elevator with the minimum cost to pick up the passenger.
+        # Return the candidate elevator w/ the min cost to pick up the passenger.
         return min(candidates, key=lambda elevator: self._cost(elevator, passenger))
 
     def _cost(self, elevator: Elevator, passenger: Passenger) -> float:
@@ -63,8 +64,12 @@ class NearestCarScheduler(Scheduler):
             # Free to go straight to the pickup floor.
             travel_cost = abs(cur - src)
         else:
+            # Check elevator direction (up = True, down = False)
             heading_up = elevator.direction == Direction.UP
+
+            # Is elevator ahead? Check direction w/ source & current floor
             spatially_ahead = (heading_up and src >= cur) or ((not heading_up) and src <= cur)
+            
             same_direction = passenger.direction == elevator.direction
             if spatially_ahead and same_direction:
                 # Passenger is on the way and wants to go the same way we're
@@ -75,6 +80,7 @@ class NearestCarScheduler(Scheduler):
                 # have to finish the current sweep before turning back for them.
                 turnaround = self._sweep_end(elevator, heading_up)
                 travel_cost = abs(cur - turnaround) + abs(turnaround - src)
+
         # Penalize elevators that already have a lot of committed stops queued up.
         return travel_cost + self.LOAD_PENALTY * len(elevator.stops)
 
