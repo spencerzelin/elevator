@@ -72,31 +72,6 @@ The simulation writes:
 
 ------------------------------------------------------------------------
 
-# Time Spent
-
-Approximately 10 hours total:
-
--   ~8 hours on core code/logic (models, scheduler, simulation loop, tests)
--   ~2 hours on visuals and the presentation deck
-
-------------------------------------------------------------------------
-
-# Input Format
-
-The input CSV must contain:
-
-``` csv
-time,id,source,dest
-0,passenger1,1,51
-0,passenger2,1,37
-10,passenger3,20,1
-```
-
-Requests become available only when their timestamp is reached. The
-scheduler never has access to future requests.
-
-------------------------------------------------------------------------
-
 # Project Structure
 
 ``` text
@@ -115,6 +90,22 @@ sample_requests2.csv    A second, smaller example request file
 elevator.pptx           Slide deck walking through the design and results
 output/                 Position log output (created at runtime)
 ```
+
+------------------------------------------------------------------------
+
+# Input Format
+
+The input CSV must contain:
+
+``` csv
+time,id,source,dest
+0,passenger1,1,51
+0,passenger2,1,37
+10,passenger3,20,1
+```
+
+Requests become available only when their timestamp is reached. The
+scheduler never has access to future requests.
 
 ------------------------------------------------------------------------
 
@@ -194,6 +185,27 @@ eventually be able to serve.
 
 ------------------------------------------------------------------------
 
+# Time Spent
+
+Approximately 10 hours total:
+
+-   ~8 hours on core code/logic (models, scheduler, simulation loop, tests)
+-   ~2 hours on visuals and the presentation deck
+
+------------------------------------------------------------------------
+
+# Future Improvements
+
+Given additional time, possible enhancements include:
+
+-   benchmarking multiple scheduling algorithms
+-   idle elevator repositioning
+-   fairness / maximum wait constraints
+-   visualization of elevator movement
+-   tuning scheduler cost parameters using larger simulated workloads
+
+------------------------------------------------------------------------
+
 # Testing
 
 Run the test suite with:
@@ -229,15 +241,3 @@ python main.py --requests sample_requests.csv \
     --elevators 4 --floors 60 --capacity 8 \
     --scheduler round_robin --output output/positions_roundrobin.csv
 ```
-
-------------------------------------------------------------------------
-
-# Future Improvements
-
-Given additional time, possible enhancements include:
-
--   benchmarking multiple scheduling algorithms
--   idle elevator repositioning
--   fairness / maximum wait constraints
--   visualization of elevator movement
--   tuning scheduler cost parameters using larger simulated workloads
