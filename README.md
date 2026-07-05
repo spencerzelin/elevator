@@ -72,6 +72,15 @@ The simulation writes:
 
 ------------------------------------------------------------------------
 
+# Time Spent
+
+Approximately 10 hours total:
+
+-   ~8 hours on core code/logic (models, scheduler, simulation loop, tests)
+-   ~2 hours on visuals and the presentation deck
+
+------------------------------------------------------------------------
+
 # Input Format
 
 The input CSV must contain:

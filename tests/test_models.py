@@ -1,6 +1,6 @@
 import unittest
 
-from elevator.models import Direction, Elevator, Passenger
+from elevator.models import Direction, Elevator, Passenger, _Stop
 
 
 class TestPassenger(unittest.TestCase):
@@ -51,11 +51,20 @@ class TestElevatorAssignAndService(unittest.TestCase):
         self.assertEqual(e.stops, {})
 
     def test_capacity_respected_passenger_requeued(self):
+        """
+        assign() gates committed capacity, so two pending pickups can never
+        legitimately land on a 1-seat car via assign() itself (the second
+        call would raise). That gate is what keeps this situation from
+        arising in practice. This test bypasses assign() to write directly
+        into e.stops, so it can still exercise the defensive boarding-time
+        fallback in service_current_floor() in isolation.
+        """
         e = Elevator(0, capacity=1, start_floor=1)
         p1 = Passenger(0, "a", 1, 5)
         p2 = Passenger(0, "b", 1, 5)
-        e.assign(p1)
-        e.assign(p2)
+        for p in (p1, p2):
+            e.stops.setdefault(p.source, _Stop()).pickups.append(p)
+            e.stops.setdefault(p.dest, _Stop()).dropoffs.append(p)
 
         e.service_current_floor(0)
         # Only one seat: exactly one of them boards, the other keeps waiting.
