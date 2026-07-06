@@ -25,9 +25,13 @@ class Simulation:
     """
     This class represents a simulation of an elevator system.
     It initializes the elevators and passengers, and runs the simulation based on the provided scheduler.
+    
     Attributes:
     requests (List[Passenger]): A list of passengers that will be part of the simulation.
-    elevators (List[Elevator]): A list of elevators that will be part of the simulation
+    num_elevators (int): The number of elevators in the simulation.
+    num_floors (int): The number of floors in the building.
+    capacity (int): The maximum capacity of each elevator.
+    start_floor (int): The starting floor for all elevators.
     scheduler (Scheduler): The scheduling algorithm used to assign passengers to elevators.
     """
     def __init__(self, requests: List[Passenger], num_elevators: int, num_floors: int, capacity: int, scheduler: Scheduler, start_floor: int = 1):
